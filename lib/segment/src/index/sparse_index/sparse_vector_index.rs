@@ -157,7 +157,7 @@ impl<TInvertedIndex: InvertedIndex> SparseVectorIndex<TInvertedIndex> {
         for dim_id in query_vector.indices.iter() {
             if let Some(dim_id) = self.indices_tracker.remap_index(*dim_id) {
                 if let Some(posting_list) = self.inverted_index.get(&dim_id) {
-                    for element in posting_list.elements.iter() {
+                    for element in posting_list {
                         unique_record_ids.insert(element.record_id);
                     }
                 }

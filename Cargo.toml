@@ -186,6 +186,7 @@ debug = true
 inherits = "release"
 lto = false
 opt-level = 3
+codegen-units = 16
 
 [patch.crates-io]
 # Temporary patch until <https://github.com/hyperium/tonic/pull/1401> is merged

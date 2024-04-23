@@ -4,7 +4,7 @@ use common::types::PointOffsetType;
 
 use crate::common::sparse_vector::RemappedSparseVector;
 use crate::index::inverted_index::inverted_index_ram::InvertedIndexRam;
-use crate::index::posting_list::PostingBuilder;
+use crate::index::posting_list2::PostingBuilder;
 
 /// Builder for InvertedIndexRam
 pub struct InvertedIndexBuilder {

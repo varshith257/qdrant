@@ -5209,13 +5209,18 @@ dependencies = [
 name = "sparse"
 version = "0.1.0"
 dependencies = [
+ "bitpacking",
  "common",
+ "criterion",
+ "indicatif",
  "io",
  "itertools 0.12.1",
+ "log",
  "memmap2 0.9.4",
  "memory",
  "ordered-float 4.2.0",
  "parking_lot",
+ "pprof",
  "rand 0.8.5",
  "schemars",
  "serde",

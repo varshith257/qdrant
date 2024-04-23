@@ -32,7 +32,7 @@ impl PostingElement {
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct PostingList {
     /// List of the posting elements ordered by id
-    pub elements: Vec<PostingElement>,
+    elements: Vec<PostingElement>,
 }
 
 impl PostingList {
@@ -50,6 +50,18 @@ impl PostingList {
         PostingList {
             elements: vec![PostingElement::new(record_id, weight)],
         }
+    }
+
+    pub fn iter(&self) -> PostingListIterator {
+        PostingListIterator::new(&self.elements)
+    }
+
+    pub fn len(&self) -> usize {
+        self.elements.len()
+    }
+
+    pub fn to_vec(&self) -> Vec<PostingElement> {
+        self.elements.clone()
     }
 
     /// Upsert a posting element into the posting list.
@@ -173,9 +185,10 @@ impl PostingBuilder {
 }
 
 /// Iterator over posting list elements offering skipping abilities to avoid full iteration.
+#[derive(Clone)]
 pub struct PostingListIterator<'a> {
-    pub elements: &'a [PostingElement],
-    pub current_index: usize,
+    elements: &'a [PostingElement],
+    current_index: usize,
 }
 
 impl<'a> PostingListIterator<'a> {
@@ -186,26 +199,18 @@ impl<'a> PostingListIterator<'a> {
         }
     }
 
-    /// Slice of the remaining elements.
-    pub fn remaining_elements(&self) -> &'a [PostingElement] {
-        &self.elements[self.current_index..]
-    }
-
-    /// Advances the iterator to the next element.
-    pub fn advance(&mut self) {
-        if self.current_index < self.elements.len() {
-            self.current_index += 1;
-        }
-    }
-
     /// Advances the iterator by `count` elements.
     pub fn advance_by(&mut self, count: usize) {
         self.current_index = (self.current_index + count).min(self.elements.len());
     }
 
     /// Returns the next element without advancing the iterator.
-    pub fn peek(&self) -> Option<&PostingElement> {
-        self.elements.get(self.current_index)
+    pub fn peek(&self) -> Option<PostingElement> {
+        self.elements.get(self.current_index).cloned()
+    }
+
+    pub fn last(&self) -> Option<PostingElement> {
+        self.elements.last().cloned()
     }
 
     /// Returns the number of elements from the current position to the end of the list.
@@ -248,6 +253,25 @@ impl<'a> PostingListIterator<'a> {
     }
 }
 
+impl<'a> Iterator for PostingListIterator<'a> {
+    type Item = &'a PostingElement;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current_index < self.elements.len() {
+            let element = &self.elements[self.current_index];
+            self.current_index += 1;
+            Some(element)
+        } else {
+            None
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.elements.len() - self.current_index;
+        (remaining, Some(remaining))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -270,9 +294,9 @@ mod tests {
         let mut iter = PostingListIterator::new(&posting_list.elements);
 
         assert_eq!(iter.peek().unwrap().record_id, 1);
-        iter.advance();
+        iter.next();
         assert_eq!(iter.peek().unwrap().record_id, 2);
-        iter.advance();
+        iter.next();
         assert_eq!(iter.peek().unwrap().record_id, 3);
 
         assert_eq!(iter.skip_to(7).unwrap().record_id, 7);

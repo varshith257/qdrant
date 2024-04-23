@@ -105,6 +105,7 @@ fn sparse_vector_index_build_benchmark(c: &mut Criterion) {
     sparse_vector_index.build_index(permit, &stopped).unwrap();
 
     // intent: measure mmap conversion time
+    /* XXX(xzfc): mmap disabled for now
     group.bench_function("convert-mmap-index", |b| {
         b.iter(|| {
             let mmap_index_dir = Builder::new().prefix("mmap_index_dir").tempdir().unwrap();
@@ -116,6 +117,7 @@ fn sparse_vector_index_build_benchmark(c: &mut Criterion) {
             assert_eq!(mmap_inverted_index.vector_count(), NUM_VECTORS);
         })
     });
+    */
 
     group.finish();
 }

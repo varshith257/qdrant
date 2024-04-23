@@ -1,3 +1,5 @@
+#![allow(unused_imports, unused_variables)] // XXX(xzfc): mmap disabled for now
+
 use std::mem::size_of;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -16,7 +18,7 @@ use crate::common::sparse_vector::RemappedSparseVector;
 use crate::common::types::{DimId, DimOffset};
 use crate::index::inverted_index::inverted_index_ram::InvertedIndexRam;
 use crate::index::inverted_index::InvertedIndex;
-use crate::index::posting_list::{PostingElement, PostingListIterator};
+use crate::index::posting_list2::PostingListIterator;
 
 const POSTING_HEADER_SIZE: usize = size_of::<PostingListFileHeader>();
 const INDEX_FILE_NAME: &str = "inverted_index.data";
@@ -26,6 +28,8 @@ const INDEX_CONFIG_FILE_NAME: &str = "inverted_index_config.json";
 pub struct InvertedIndexFileHeader {
     pub posting_count: usize, // number oof posting lists
     pub vector_count: usize,  // number of unique vectors indexed
+    #[serde(default)]
+    pub version: usize,
 }
 
 /// Inverted flatten index from dimension id to posting list
@@ -36,14 +40,15 @@ pub struct InvertedIndexMmap {
 }
 
 #[derive(Debug, Default, Clone)]
-struct PostingListFileHeader {
+pub struct PostingListFileHeader {
     pub start_offset: u64,
     pub end_offset: u64,
 }
 
 impl InvertedIndex for InvertedIndexMmap {
     fn open(path: &Path) -> std::io::Result<Self> {
-        Self::load(path)
+        // Self::load(path)
+        unimplemented!()
     }
 
     fn save(&self, path: &Path) -> std::io::Result<()> {
@@ -52,7 +57,8 @@ impl InvertedIndex for InvertedIndexMmap {
     }
 
     fn get(&self, id: &DimId) -> Option<PostingListIterator> {
-        self.get(id).map(PostingListIterator::new)
+        // self.get(id).map(PostingListIterator::new)
+        unimplemented!()
     }
 
     fn len(&self) -> usize {
@@ -60,7 +66,8 @@ impl InvertedIndex for InvertedIndexMmap {
     }
 
     fn posting_list_len(&self, id: &DimOffset) -> Option<usize> {
-        self.get(id).map(|posting_list| posting_list.len())
+        // self.get(id).map(|posting_list| posting_list.len())
+        unimplemented!()
     }
 
     fn files(path: &Path) -> Vec<PathBuf> {
@@ -78,18 +85,21 @@ impl InvertedIndex for InvertedIndexMmap {
         ram_index: InvertedIndexRam,
         path: P,
     ) -> std::io::Result<Self> {
-        Self::convert_and_save(&ram_index, path)
+        // Self::convert_and_save(&ram_index, path)
+        unimplemented!()
     }
 
     fn vector_count(&self) -> usize {
-        self.file_header.vector_count
+        // self.file_header.vector_count
+        unimplemented!()
     }
 
     fn max_index(&self) -> Option<DimId> {
-        match self.file_header.posting_count {
-            0 => None,
-            len => Some(len as DimId - 1),
-        }
+        // match self.file_header.posting_count {
+        //     0 => None,
+        //     len => Some(len as DimId - 1),
+        // }
+        unimplemented!()
     }
 }
 
@@ -102,6 +112,7 @@ impl InvertedIndexMmap {
         path.join(INDEX_CONFIG_FILE_NAME)
     }
 
+    /*
     pub fn get(&self, id: &DimId) -> Option<&[PostingElement]> {
         // check that the id is not out of bounds (posting_count includes the empty zeroth entry)
         if *id >= self.file_header.posting_count as DimId {
@@ -179,7 +190,7 @@ impl InvertedIndexMmap {
     fn total_posting_elements_size(inverted_index_ram: &InvertedIndexRam) -> usize {
         let mut total_posting_elements_size = 0;
         for posting in &inverted_index_ram.postings {
-            total_posting_elements_size += posting.elements.len() * size_of::<PostingElement>();
+            total_posting_elements_size += posting.len() * size_of::<PostingElement>();
         }
 
         total_posting_elements_size
@@ -192,7 +203,7 @@ impl InvertedIndexMmap {
     ) {
         let mut elements_offset: usize = total_posting_headers_size;
         for (id, posting) in inverted_index_ram.postings.iter().enumerate() {
-            let posting_elements_size = posting.elements.len() * size_of::<PostingElement>();
+            let posting_elements_size = posting.len() * size_of::<PostingElement>();
             let posting_header = PostingListFileHeader {
                 start_offset: elements_offset as u64,
                 end_offset: (elements_offset + posting_elements_size) as u64,
@@ -215,14 +226,17 @@ impl InvertedIndexMmap {
         let mut offset = total_posting_headers_size;
         for posting in &inverted_index_ram.postings {
             // save posting element
-            let posting_elements_bytes = transmute_to_u8_slice(&posting.elements);
+            let elements = posting.to_vec(); // TODO(xzfc): avoid copy
+            let posting_elements_bytes = transmute_to_u8_slice(&elements);
             mmap[offset..offset + posting_elements_bytes.len()]
                 .copy_from_slice(posting_elements_bytes);
             offset += posting_elements_bytes.len();
         }
     }
+    */
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use tempfile::Builder;
@@ -235,7 +249,7 @@ mod tests {
         inverted_index_mmap: &InvertedIndexMmap,
     ) {
         for id in 0..inverted_index_ram.postings.len() as DimId {
-            let posting_list_ram = inverted_index_ram.get(&id).unwrap().elements.as_slice();
+            let posting_list_ram = inverted_index_ram.get(&id).unwrap().to_vec();
             let posting_list_mmap = inverted_index_mmap.get(&id).unwrap();
             assert_eq!(posting_list_ram.len(), posting_list_mmap.len());
             for i in 0..posting_list_ram.len() {
@@ -286,3 +300,4 @@ mod tests {
         assert!(inverted_index_mmap.get(&100).is_none());
     }
 }
+*/

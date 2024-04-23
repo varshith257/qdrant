@@ -5,7 +5,7 @@ use common::types::PointOffsetType;
 use crate::common::sparse_vector::RemappedSparseVector;
 use crate::common::types::DimOffset;
 use crate::index::inverted_index::inverted_index_ram::InvertedIndexRam;
-use crate::index::posting_list::PostingListIterator;
+use crate::index::posting_list2::PostingListIterator;
 
 pub mod inverted_index_mmap;
 pub mod inverted_index_ram;

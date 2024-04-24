@@ -5,12 +5,11 @@ use atomic_refcell::AtomicRefCell;
 use common::types::PointOffsetType;
 use tempfile::Builder;
 
-use crate::common::rocksdb_wrapper::{open_db, DB_VECTOR_CF};
 use crate::data_types::vectors::{MultiDenseVector, QueryVector};
 use crate::fixtures::payload_context_fixture::FixtureIdTracker;
 use crate::id_tracker::IdTrackerSS;
 use crate::types::{Distance, MultiVectorConfig};
-use crate::vector_storage::multi_dense::simple_multi_dense_vector_storage::open_simple_multi_dense_vector_storage;
+use crate::vector_storage::multi_dense::appendable_mmap_multi_dense_vector_storage::open_appendable_memmap_multi_vector_storage;
 use crate::vector_storage::{new_raw_scorer, VectorStorage, VectorStorageEnum};
 
 fn multi_points_fixtures() -> Vec<MultiDenseVector> {
@@ -146,10 +145,8 @@ fn do_test_update_from_delete_points(storage: Arc<AtomicRefCell<VectorStorageEnu
 
     {
         let dir2 = Builder::new().prefix("db_dir").tempdir().unwrap();
-        let db = open_db(dir2.path(), &[DB_VECTOR_CF]).unwrap();
-        let storage2 = open_simple_multi_dense_vector_storage(
-            db,
-            DB_VECTOR_CF,
+        let storage2 = open_appendable_memmap_multi_vector_storage(
+            dir2.path(),
             4,
             Distance::Dot,
             MultiVectorConfig::default(),
@@ -222,10 +219,8 @@ fn test_delete_points_in_simple_multi_dense_vector_storage() {
     let dir = Builder::new().prefix("storage_dir").tempdir().unwrap();
 
     {
-        let db = open_db(dir.path(), &[DB_VECTOR_CF]).unwrap();
-        let storage = open_simple_multi_dense_vector_storage(
-            db,
-            DB_VECTOR_CF,
+        let storage = open_appendable_memmap_multi_vector_storage(
+            dir.path(),
             4,
             Distance::Dot,
             MultiVectorConfig::default(),
@@ -235,10 +230,8 @@ fn test_delete_points_in_simple_multi_dense_vector_storage() {
         do_test_delete_points(storage.clone());
         storage.borrow().flusher()().unwrap();
     }
-    let db = open_db(dir.path(), &[DB_VECTOR_CF]).unwrap();
-    let _storage = open_simple_multi_dense_vector_storage(
-        db,
-        DB_VECTOR_CF,
+    let _storage = open_appendable_memmap_multi_vector_storage(
+        dir.path(),
         4,
         Distance::Dot,
         MultiVectorConfig::default(),
@@ -251,10 +244,8 @@ fn test_delete_points_in_simple_multi_dense_vector_storage() {
 fn test_update_from_delete_points_simple_multi_dense_vector_storage() {
     let dir = Builder::new().prefix("storage_dir").tempdir().unwrap();
     {
-        let db = open_db(dir.path(), &[DB_VECTOR_CF]).unwrap();
-        let storage = open_simple_multi_dense_vector_storage(
-            db,
-            DB_VECTOR_CF,
+        let storage = open_appendable_memmap_multi_vector_storage(
+            dir.path(),
             4,
             Distance::Dot,
             MultiVectorConfig::default(),
@@ -265,10 +256,8 @@ fn test_update_from_delete_points_simple_multi_dense_vector_storage() {
         storage.borrow().flusher()().unwrap();
     }
 
-    let db = open_db(dir.path(), &[DB_VECTOR_CF]).unwrap();
-    let _storage = open_simple_multi_dense_vector_storage(
-        db,
-        DB_VECTOR_CF,
+    let _storage = open_appendable_memmap_multi_vector_storage(
+        dir.path(),
         4,
         Distance::Dot,
         MultiVectorConfig::default(),

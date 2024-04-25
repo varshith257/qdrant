@@ -206,8 +206,8 @@ impl<T: Sized + Copy + 'static> ChunkedMmapVectors<T> {
         TKey: num_traits::cast::AsPrimitive<usize>,
     {
         let start_key = start_key.as_();
-        let chunk_offset = self.get_chunk_offset(start_key);
-        self.config.chunk_size_vectors - chunk_offset
+        let chunk_vector_idx = self.get_chunk_offset(start_key) / self.config.dim;
+        self.config.chunk_size_vectors - chunk_vector_idx
     }
 
     pub fn push(&mut self, vector: &[T]) -> OperationResult<PointOffsetType> {

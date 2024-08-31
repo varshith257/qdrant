@@ -121,11 +121,7 @@ pub async fn multipart_upload(
             break;
         }
         let buffer = &buffer[..bytes_read];
-        // 1. write.write() is sync but a worker thread is spawned internally.
-        write
-            .write(buffer)
-            .await
-            .map_err(|e| CollectionError::service_error(format!("Failed to write buffer: {e}")))?;
+        write.write(buffer);
     }
     write
         .finish() //  2. write.finish() will wait for all the worker threads to finish.

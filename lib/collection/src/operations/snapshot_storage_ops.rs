@@ -128,7 +128,6 @@ pub async fn multipart_upload(
         let buffer = &buffer[..bytes_read];
 
         // Wait for capacity before writing the buffer
-        // Wait for capacity before writing the buffer
         write
             .wait_for_capacity(max_concurrency)
             .await

@@ -116,7 +116,7 @@ pub async fn multipart_upload(
 
     // Initialize CpuBudget to manage concurrency
     let cpu_budget = CpuBudget::default();
-    let max_concurrency = get_cpu_budget(0); // Use the default CPU budget as the max concurrency
+    let max_concurrency = cpu_budget.get_cpu_budget(); // Determine the max concurrency based on the CPU budget
 
     // Note:
     //  1. write.write() is sync but a worker thread is spawned internally.

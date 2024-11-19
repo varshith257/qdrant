@@ -19,6 +19,7 @@ use api::grpc::qdrant::{
 use api::grpc::transport_channel_pool::{AddTimeout, MAX_GRPC_CHANNEL_TIMEOUT};
 use async_trait::async_trait;
 use common::counter::hardware_accumulator::HwMeasurementAcc;
+use common::timeout::calculate_timeout;
 use common::types::TelemetryDetail;
 use itertools::Itertools;
 use parking_lot::Mutex;
@@ -557,13 +558,17 @@ impl RemoteShard {
         state: ReplicaState,
         timeout: Duration,
     ) -> CollectionResult<CollectionOperationResponse> {
+        let adjusted_timeout =
+            calculate_timeout(Some(timeout.as_secs_f64()), std::time::Instant::now(), 1.0)
+                .map(|t| t.as_secs_f64().ceil() as u64)
+                .unwrap_or(1);
         let res = self
             .with_collections_client(|mut client| async move {
                 let mut wait_for_shard_request = tonic::Request::new(WaitForShardStateRequest {
                     collection_name: collection_name.into(),
                     shard_id,
                     state: api::grpc::qdrant::ReplicaState::from(state) as i32,
-                    timeout: timeout.as_secs_f32().ceil() as u64,
+                    timeout: adjusted_timeout,
                 });
                 wait_for_shard_request.set_timeout(timeout);
                 client.wait_for_shard_state(wait_for_shard_request).await

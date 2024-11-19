@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use common::counter::hardware_accumulator::HwMeasurementAcc;
+use common::timeout::calculate_timeout;
 use futures::Future;
 use itertools::Itertools;
 use tokio::sync::RwLockReadGuard;
@@ -109,9 +110,7 @@ where
 
         if let Some(lookup) = with_lookup {
             // update timeout
-            let timeout = self
-                .timeout
-                .map(|timeout| timeout.saturating_sub(start.elapsed()));
+            let timeout = calculate_timeout(self.timeout.map(|t| t.as_secs_f64()), start, 1.0);
             let mut lookups = {
                 let pseudo_ids = groups
                     .iter()

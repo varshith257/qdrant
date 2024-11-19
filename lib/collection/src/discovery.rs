@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use common::counter::hardware_accumulator::HwMeasurementAcc;
+use common::timeout::calculate_timeout;
 use futures::Future;
 use itertools::Itertools;
 use segment::data_types::vectors::NamedQuery;
@@ -202,7 +203,7 @@ where
     .await?;
 
     // update timeout
-    let timeout = timeout.map(|timeout| timeout.saturating_sub(start.elapsed()));
+    let timeout: Option<Duration> = calculate_timeout(timeout.map(|t| t.as_secs_f64()), start, 1.0);
 
     let res = batch_requests::<
         (DiscoverRequestInternal, ShardSelectorInternal),

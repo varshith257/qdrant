@@ -3,6 +3,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use common::counter::hardware_accumulator::HwMeasurementAcc;
+use common::timeout::calculate_timeout;
 use common::types::ScoreType;
 use futures::{future, TryFutureExt};
 use itertools::{Either, Itertools};
@@ -217,7 +218,7 @@ impl Collection {
         .await?;
 
         // update timeout
-        let timeout = timeout.map(|timeout| timeout.saturating_sub(start.elapsed()));
+        let timeout = calculate_timeout(timeout.map(|t| t.as_secs_f64()), start, 1.0);
 
         // Check we actually fetched all referenced vectors from the resolver requests
         for (resolver_req, _) in &resolver_requests {

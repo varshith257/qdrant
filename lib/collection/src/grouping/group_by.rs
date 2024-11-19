@@ -4,6 +4,7 @@ use std::time::Duration;
 
 use api::rest::{BaseGroupRequest, SearchGroupsRequestInternal, SearchRequestInternal};
 use common::counter::hardware_accumulator::HwMeasurementAcc;
+use common::timeout::calculate_timeout;
 use fnv::FnvBuildHasher;
 use indexmap::IndexSet;
 use segment::json_path::JsonPath;
@@ -330,7 +331,7 @@ pub async fn group_by(
     let mut needs_filling = true;
     for _ in 0..MAX_GET_GROUPS_REQUESTS {
         // update timeout
-        let timeout = timeout.map(|t| t.saturating_sub(start.elapsed()));
+        let timeout = calculate_timeout(timeout.map(|t| t.as_secs_f64()), start, 1.0);
         let mut request = request.clone();
 
         let source = &mut request.source;

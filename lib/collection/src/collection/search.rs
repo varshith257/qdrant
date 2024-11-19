@@ -5,6 +5,7 @@ use std::time::Duration;
 
 use ahash::AHashSet;
 use common::counter::hardware_accumulator::HwMeasurementAcc;
+use common::timeout::calculate_timeout;
 use futures::{future, TryFutureExt};
 use itertools::{Either, Itertools};
 use segment::data_types::vectors::VectorStructInternal;
@@ -113,7 +114,7 @@ impl Collection {
                 )
                 .await?;
             // update timeout
-            let timeout = timeout.map(|t| t.saturating_sub(start.elapsed()));
+            let timeout = calculate_timeout(timeout.map(|t| t.as_secs_f64()), start, 1.0);
             let filled_results = without_payload_results
                 .into_iter()
                 .zip(request.clone().searches.into_iter())

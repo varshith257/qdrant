@@ -4,6 +4,7 @@ use std::time::Duration;
 
 use api::rest::RecommendStrategy;
 use common::counter::hardware_accumulator::HwMeasurementAcc;
+use common::timeout::calculate_timeout;
 use itertools::Itertools;
 use segment::data_types::vectors::{
     DenseVector, NamedQuery, NamedVectorStruct, TypedMultiDenseVector, VectorElementType,
@@ -288,7 +289,7 @@ where
     .await?;
 
     // update timeout
-    let timeout = timeout.map(|timeout| timeout.saturating_sub(start.elapsed()));
+    let timeout = calculate_timeout(timeout.map(|t| t.as_secs_f64()), start, 1.0);
 
     let res = batch_requests::<
         (RecommendRequestInternal, ShardSelectorInternal),

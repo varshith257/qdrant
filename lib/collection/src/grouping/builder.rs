@@ -7,6 +7,7 @@ use tokio::sync::RwLockReadGuard;
 
 use super::group_by::{group_by, GroupRequest};
 use crate::collection::Collection;
+use crate::common::timeout::calculate_timeout;
 use crate::lookup::lookup_ids;
 use crate::lookup::types::PseudoId;
 use crate::operations::consistency_params::ReadConsistency;
@@ -109,9 +110,7 @@ where
 
         if let Some(lookup) = with_lookup {
             // update timeout
-            let timeout = self
-                .timeout
-                .map(|timeout| timeout.saturating_sub(start.elapsed()));
+            let timeout = calculate_timeout(self.timeout.map(|t| t.as_secs_f64()), start, 1.0);
             let mut lookups = {
                 let pseudo_ids = groups
                     .iter()

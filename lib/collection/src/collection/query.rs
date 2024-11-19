@@ -20,6 +20,7 @@ use crate::common::fetch_vectors::{
     build_vector_resolver_queries, resolve_referenced_vectors_batch,
 };
 use crate::common::retrieve_request_trait::RetrieveRequest;
+use crate::common::timeout::calculate_timeout;
 use crate::common::transpose_iterator::transposed_iter;
 use crate::operations::consistency_params::ReadConsistency;
 use crate::operations::shard_selector_internal::ShardSelectorInternal;
@@ -217,7 +218,7 @@ impl Collection {
         .await?;
 
         // update timeout
-        let timeout = timeout.map(|timeout| timeout.saturating_sub(start.elapsed()));
+        let timeout = calculate_timeout(timeout.map(|t| t.as_secs_f64()), start, 1.0);
 
         // Check we actually fetched all referenced vectors from the resolver requests
         for (resolver_req, _) in &resolver_requests {

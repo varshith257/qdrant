@@ -14,6 +14,7 @@ use segment::types::{
 use tokio::time::Instant;
 
 use super::Collection;
+use crate::common::timeout::calculate_timeout;
 use crate::events::SlowQueryEvent;
 use crate::operations::consistency_params::ReadConsistency;
 use crate::operations::shard_selector_internal::ShardSelectorInternal;
@@ -113,7 +114,7 @@ impl Collection {
                 )
                 .await?;
             // update timeout
-            let timeout = timeout.map(|t| t.saturating_sub(start.elapsed()));
+            let timeout = calculate_timeout(timeout.map(|t| t.as_secs_f64()), start, 1.0);
             let filled_results = without_payload_results
                 .into_iter()
                 .zip(request.clone().searches.into_iter())

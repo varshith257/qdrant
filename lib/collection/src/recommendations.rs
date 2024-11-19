@@ -23,6 +23,7 @@ use crate::common::fetch_vectors::{
     ReferencedVectors,
 };
 use crate::common::retrieve_request_trait::RetrieveRequest;
+use crate::common::timeout::calculate_timeout;
 use crate::operations::consistency_params::ReadConsistency;
 use crate::operations::query_enum::QueryEnum;
 use crate::operations::shard_selector_internal::ShardSelectorInternal;
@@ -288,7 +289,7 @@ where
     .await?;
 
     // update timeout
-    let timeout = timeout.map(|timeout| timeout.saturating_sub(start.elapsed()));
+    let timeout = calculate_timeout(timeout.map(|t| t.as_secs_f64()), start, 1.0);
 
     let res = batch_requests::<
         (RecommendRequestInternal, ShardSelectorInternal),

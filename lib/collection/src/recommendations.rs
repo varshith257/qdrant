@@ -23,6 +23,7 @@ use crate::common::fetch_vectors::{
     convert_to_vectors, convert_to_vectors_owned, resolve_referenced_vectors_batch,
     ReferencedVectors,
 };
+use crate::operations::consistency_params::ReadConsistency;
 use crate::common::retrieve_request_trait::RetrieveRequest;
 use crate::operations::query_enum::QueryEnum;
 use crate::operations::shard_selector_internal::ShardSelectorInternal;

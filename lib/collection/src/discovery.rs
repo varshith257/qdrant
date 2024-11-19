@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use common::counter::hardware_accumulator::HwMeasurementAcc;
+use common::timeout::calculate_timeout;
 use futures::Future;
 use itertools::Itertools;
 use segment::data_types::vectors::NamedQuery;
@@ -14,7 +15,6 @@ use crate::common::fetch_vectors::{
     convert_to_vectors, resolve_referenced_vectors_batch, ReferencedVectors,
 };
 use crate::common::retrieve_request_trait::RetrieveRequest;
-use crate::common::timeout::calculate_timeout;
 use crate::operations::consistency_params::ReadConsistency;
 use crate::operations::query_enum::QueryEnum;
 use crate::operations::shard_selector_internal::ShardSelectorInternal;

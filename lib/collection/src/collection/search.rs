@@ -5,6 +5,7 @@ use std::time::Duration;
 
 use ahash::AHashSet;
 use common::counter::hardware_accumulator::HwMeasurementAcc;
+use common::timeout::calculate_timeout;
 use futures::{future, TryFutureExt};
 use itertools::{Either, Itertools};
 use segment::data_types::vectors::VectorStructInternal;
@@ -14,7 +15,6 @@ use segment::types::{
 use tokio::time::Instant;
 
 use super::Collection;
-use crate::common::timeout::calculate_timeout;
 use crate::events::SlowQueryEvent;
 use crate::operations::consistency_params::ReadConsistency;
 use crate::operations::shard_selector_internal::ShardSelectorInternal;

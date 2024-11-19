@@ -3,6 +3,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use common::counter::hardware_accumulator::HwMeasurementAcc;
+use common::timeout::calculate_timeout;
 use common::types::ScoreType;
 use futures::{future, TryFutureExt};
 use itertools::{Either, Itertools};
@@ -20,7 +21,6 @@ use crate::common::fetch_vectors::{
     build_vector_resolver_queries, resolve_referenced_vectors_batch,
 };
 use crate::common::retrieve_request_trait::RetrieveRequest;
-use crate::common::timeout::calculate_timeout;
 use crate::common::transpose_iterator::transposed_iter;
 use crate::operations::consistency_params::ReadConsistency;
 use crate::operations::shard_selector_internal::ShardSelectorInternal;

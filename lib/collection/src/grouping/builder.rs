@@ -1,13 +1,13 @@
 use std::time::Duration;
 
 use common::counter::hardware_accumulator::HwMeasurementAcc;
+use common::timeout::calculate_timeout;
 use futures::Future;
 use itertools::Itertools;
 use tokio::sync::RwLockReadGuard;
 
 use super::group_by::{group_by, GroupRequest};
 use crate::collection::Collection;
-use crate::common::timeout::calculate_timeout;
 use crate::lookup::lookup_ids;
 use crate::lookup::types::PseudoId;
 use crate::operations::consistency_params::ReadConsistency;

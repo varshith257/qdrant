@@ -4,6 +4,7 @@ use std::time::Duration;
 
 use api::rest::{BaseGroupRequest, SearchGroupsRequestInternal, SearchRequestInternal};
 use common::counter::hardware_accumulator::HwMeasurementAcc;
+use common::timeout::calculate_timeout;
 use fnv::FnvBuildHasher;
 use indexmap::IndexSet;
 use segment::json_path::JsonPath;
@@ -19,7 +20,6 @@ use super::types::QueryGroupRequest;
 use crate::collection::Collection;
 use crate::common::fetch_vectors;
 use crate::common::fetch_vectors::build_vector_resolver_query;
-use crate::common::timeout::calculate_timeout;
 use crate::lookup::WithLookup;
 use crate::operations::consistency_params::ReadConsistency;
 use crate::operations::shard_selector_internal::ShardSelectorInternal;

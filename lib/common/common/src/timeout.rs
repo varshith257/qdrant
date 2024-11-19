@@ -1,4 +1,6 @@
-use std::time::{Duration, Instant};
+use std::time::Duration;
+
+use tokio::time::Instant;
 
 /// Calculate the remaining timeout, clamped to a minimum value.
 pub fn calculate_timeout(
